@@ -125,6 +125,14 @@ footer{text-align:center;margin-top:46px;padding-top:20px;color:var(--gold-dim);
        = winner advanced, loser eliminated. (Handles pens cleanly —
        just name who went through.) Auto-marks picks + flags loser out.
 
+     ───────────────  3b. LIST A KNOCKOUT FIXTURE  ───────────────
+       Once a knockout draw is confirmed, list the matchups so people
+       can see who plays whom (and plan which realm to save):
+         koFixture(4, "Spain", "Morocco");
+       = round (4=R32,5=R16,6=QF,7=SF,8=Final), team A, team B.
+       When you later log ko() for those teams, the score/winner shows
+       automatically against this fixture.
+
      ───────────────  4. FLAG A TEAM OUT OF THE COMPETITION  ───────────────
        Knockout losers are flagged out automatically by ko().
        For GROUP teams that are mathematically eliminated (bottom of
@@ -152,10 +160,11 @@ const PLAYERS = [
 ];
 
 // builders (do not edit)
-const _picks=[], _rebuys=[], _results=[], _kos=[], _manualOut=[];
+const _picks=[], _rebuys=[], _results=[], _kos=[], _manualOut=[], _koFix=[];
 function pick(player,round,team){ _picks.push({player,round,team}); }
 function result(round,home,away,score){ _results.push({round,home,away,score}); }
 function ko(winner,loser){ _kos.push({winner,loser}); }
+function koFixture(round,teamA,teamB){ _koFix.push({round,teamA,teamB}); }
 function eliminate(team){ _manualOut.push(team); }
 function rebuy(player,round){ _rebuys.push({player,round}); }
 
@@ -167,6 +176,13 @@ pick("Jonny Hine",   1, "Norway");
 
 /* ===================== GROUP RESULTS ===================== */
 /* e.g.  result(1, "Mexico", "South Africa", "2-1");  */
+
+/* ===================== KNOCKOUT FIXTURES ===================== */
+/* Once each knockout draw is confirmed, list the matchups here so
+   everyone can see who plays whom. Round numbers: 4=R32, 5=R16,
+   6=QF, 7=SF, 8=Final. As you log the ko() result below, the score/
+   winner is shown automatically against the matching fixture.
+   e.g.  koFixture(4, "Spain", "Morocco");  */
 
 /* ===================== KNOCKOUT RESULTS ===================== */
 /* e.g.  ko("France", "Senegal");  */
@@ -373,7 +389,27 @@ function renderFixtures(){
         return `<div class="fixrow"><span class="grp">${g}</span><span>${h}</span><span class="vs">v</span><span>${a}</span></div>`;
       }).join("")+`</div></details>`;
   });
-  html+=`<details class="fixgroup"><summary>Knockouts <span class="tag">structure below</span></summary><div class="fixlist"><div class="fixrow" style="color:var(--mute);font-style:italic">Concrete knockout fixtures depend on final group standings — see “Paths to the Throne”.</div></div></details>`;
+  // knockout rounds: show listed fixtures (with results overlaid) once entered
+  const KO_NAMES={4:"Round of 32",5:"Round of 16",6:"Quarter-finals",7:"Semi-finals",8:"Final"};
+  [4,5,6,7,8].forEach(rd=>{
+    const fix=_koFix.filter(f=>f.round===rd);
+    if(fix.length===0) return; // nothing entered yet for this round
+    const open=rd===CURRENT_ROUND;
+    html+=`<details class="fixgroup" ${open?'open':''}><summary>${KO_NAMES[rd]} <span class="tag">${fix.length} tie${fix.length===1?"":"s"}</span></summary><div class="fixlist">`+
+      fix.map(f=>{
+        const winner=_kos.find(k=>(k.winner===f.teamA&&k.loser===f.teamB)||(k.winner===f.teamB&&k.loser===f.teamA));
+        if(winner){
+          const aCls=winner.winner===f.teamA?'wnr':'lsr';
+          const bCls=winner.winner===f.teamB?'wnr':'lsr';
+          return `<div class="fixrow played"><span class="${aCls}">${f.teamA}</span><span class="vs">v</span><span class="${bCls}">${f.teamB}</span><span class="score">${winner.winner} ▸</span></div>`;
+        }
+        return `<div class="fixrow"><span>${f.teamA}</span><span class="vs">v</span><span>${f.teamB}</span></div>`;
+      }).join("")+`</div></details>`;
+  });
+  // if no knockout fixtures listed at all yet, keep the structural pointer
+  if(_koFix.length===0){
+    html+=`<details class="fixgroup"><summary>Knockouts <span class="tag">fixtures TBC — structure below</span></summary><div class="fixlist"><div class="fixrow" style="color:var(--mute);font-style:italic">Knockout ties are confirmed once the groups finish — they'll appear here. Meanwhile see “Paths to the Throne”.</div></div></details>`;
+  }
   $("fixtures").innerHTML=html;
 }
 function renderBracket(){
