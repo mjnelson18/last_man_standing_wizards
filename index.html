@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Great Council of Wizards · WC26 Last Man Standing</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:wght@400;500&display=swap');
+:root{
+  --void:#0a0a14;--void-2:#11101f;--panel:#161527;--panel-2:#1d1b30;--edge:#2c2a45;
+  --gold:#d4af37;--gold-dim:#9a7d2e;--parch:#e8e0c8;--mute:#8d87a8;
+  --green:#5fb37a;--red:#c65a5a;--amber:#d99a3a;--arcane:#7b6cd9;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:radial-gradient(ellipse at 50% -10%,rgba(123,108,217,.12),transparent 55%),radial-gradient(ellipse at 80% 110%,rgba(212,175,55,.06),transparent 50%),var(--void);color:var(--parch);font-family:'EB Garamond',Georgia,serif;line-height:1.5;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E")}
+.wrap{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:20px 14px 80px}
+header{text-align:center;padding:28px 10px 18px;position:relative}
+.eyebrow{font-family:'Cinzel',serif;letter-spacing:.42em;font-size:11px;color:var(--gold-dim);text-transform:uppercase;margin-bottom:14px}
+h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(26px,7vw,52px);line-height:1.05;background:linear-gradient(180deg,#f3e3a8,var(--gold) 55%,#8a6d22);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 2px 12px rgba(212,175,55,.25))}
+.sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(15px,3.6vw,20px);color:var(--mute);margin-top:8px}
+.sigil{font-size:30px;color:var(--gold);filter:drop-shadow(0 0 10px rgba(212,175,55,.5));margin-bottom:6px}
+.rule{height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);margin:20px auto;max-width:520px}
+.pot{background:linear-gradient(135deg,var(--panel-2),var(--panel));border:1px solid var(--edge);border-radius:16px;padding:22px 18px;text-align:center;position:relative;overflow:hidden;box-shadow:0 0 0 1px rgba(212,175,55,.08) inset,0 18px 40px -20px rgba(0,0,0,.8)}
+.pot::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(212,175,55,.14),transparent 60%);pointer-events:none}
+.pot .label{font-family:'Cinzel',serif;letter-spacing:.3em;font-size:11px;color:var(--gold-dim);text-transform:uppercase}
+.pot .amount{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(40px,12vw,72px);color:var(--gold);text-shadow:0 0 26px rgba(212,175,55,.35);line-height:1;margin:6px 0}
+.pot .meta{font-size:14px;color:var(--mute)}
+.pot .meta b{color:var(--parch)}
+.sec{margin:38px 0 14px;display:flex;align-items:center;gap:12px}
+.sec h2{font-family:'Cinzel',serif;font-weight:700;font-size:clamp(16px,4.5vw,22px);color:var(--parch);letter-spacing:.04em;white-space:nowrap}
+.sec .line{flex:1;height:1px;background:linear-gradient(90deg,var(--edge),transparent)}
+.sec .star{color:var(--gold);font-size:14px}
+.now{background:var(--panel);border:1px solid var(--edge);border-left:3px solid var(--gold);border-radius:12px;padding:16px 18px;margin-bottom:8px}
+.now .rd{font-family:'Cinzel',serif;font-size:18px;color:var(--gold);font-weight:600}
+.now .dl{color:var(--amber);font-size:14px;margin-top:4px}
+.now .note{color:var(--mute);font-size:13.5px;margin-top:8px;font-style:italic}
+.players{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.pcard{background:var(--panel);border:1px solid var(--edge);border-radius:11px;padding:13px 13px 12px;position:relative;overflow:hidden}
+.pcard.alive{border-color:rgba(95,179,122,.35)}
+.pcard.out{opacity:.62}
+.pcard.out::after{content:"OUT";position:absolute;top:9px;right:11px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.2em;color:var(--red);border:1px solid rgba(198,90,90,.4);border-radius:4px;padding:1px 5px}
+.pcard .nm{font-family:'Cinzel',serif;font-weight:600;font-size:14.5px;color:var(--parch);margin-bottom:6px;padding-right:30px}
+.pcard .st{font-size:12.5px;color:var(--mute);display:flex;flex-direction:column;gap:2px}
+.pcard .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.dot.g{background:var(--green);box-shadow:0 0 7px var(--green)}
+.dot.r{background:var(--red)}
+.dot.a{background:var(--amber)}
+.pcard .pick{margin-top:8px;padding-top:8px;border-top:1px dashed var(--edge);font-size:12.5px}
+.pcard .pick .lbl{color:var(--gold-dim);font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;display:block;margin-bottom:2px}
+.pcard .pick .team{color:var(--parch);font-weight:500}
+.pcard .pick .pending{color:var(--mute);font-style:italic}
+.pcard .rebuys{font-size:11px;color:var(--gold-dim);margin-top:5px}
+.tablewrap{overflow-x:auto;border:1px solid var(--edge);border-radius:12px;background:var(--panel);-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid rgba(44,42,69,.6);white-space:nowrap}
+thead th{font-family:'Cinzel',serif;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-dim);background:var(--panel-2);position:sticky;top:0}
+tbody tr:hover{background:rgba(123,108,217,.06)}
+.win{color:var(--green);font-weight:600}.loss{color:var(--red)}.draw{color:var(--amber)}.pend{color:var(--mute);font-style:italic}
+.hist td:first-child,.hist th:first-child{position:sticky;left:0;background:var(--panel);font-family:'Cinzel',serif;font-weight:600;font-size:12px;z-index:1}
+.hist thead th:first-child{background:var(--panel-2);z-index:2}
+.hist tr.dead td:first-child{color:var(--mute)}
+.cell-team{color:var(--parch)}.cell-empty{color:var(--edge)}
+.matrix td:first-child,.matrix th:first-child{position:sticky;left:0;background:var(--panel);z-index:1;font-weight:500}
+.matrix thead th:first-child{background:var(--panel-2);z-index:2}
+.matrix .rank{color:var(--gold-dim);font-size:11px;width:26px;text-align:center}
+.matrix td.rank{position:static}
+.matrix tr.teamdead td{opacity:.42}
+.matrix tr.teamdead td:nth-child(2){text-decoration:line-through;color:var(--mute)}
+.mcell{text-align:center;font-size:11px;font-family:'Cinzel',serif}
+.m-avail{color:var(--green)}.m-chosen{color:var(--gold);font-weight:700}.m-dead{color:var(--red);opacity:.6}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:10px 2px 0;font-size:12px;color:var(--mute)}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend i{font-family:'Cinzel',serif;font-style:normal;font-weight:700}
+.fixgroup{margin-bottom:6px}
+.fixgroup summary{cursor:pointer;font-family:'Cinzel',serif;font-size:14px;color:var(--gold);padding:10px 14px;background:var(--panel);border:1px solid var(--edge);border-radius:10px;list-style:none;display:flex;justify-content:space-between;align-items:center}
+.fixgroup summary::-webkit-details-marker{display:none}
+.fixgroup summary::after{content:"▾";color:var(--gold-dim);font-size:12px}
+.fixgroup[open] summary::after{content:"▴"}
+.fixgroup summary .tag{font-family:'EB Garamond';font-size:11.5px;color:var(--mute);font-style:italic}
+.fixlist{padding:6px 4px 12px}
+.fixrow{display:flex;align-items:center;gap:10px;padding:6px 12px;font-size:13.5px}
+.fixrow.played{opacity:.55}
+.fixrow .vs{color:var(--gold-dim);font-style:italic;font-size:12px}
+.fixrow .grp{font-family:'Cinzel',serif;font-size:10px;color:var(--gold-dim);min-width:18px}
+.fixrow .score{margin-left:auto;font-family:'Cinzel',serif;font-size:12px;color:var(--gold)}
+.fixrow .wnr{color:var(--green)}.fixrow .lsr{color:var(--mute)}
+.bracket{font-size:13px;color:var(--mute);line-height:1.7;padding:4px 2px}
+.bracket b{color:var(--parch);font-family:'Cinzel',serif;font-weight:600;font-size:12px}
+.bracket .slot{padding:7px 12px;border-left:2px solid var(--edge);margin:5px 0;background:var(--panel)}
+.rules{background:var(--panel);border:1px solid var(--edge);border-radius:12px;padding:18px 20px;font-size:14px;color:var(--parch)}
+.rules h3{font-family:'Cinzel',serif;color:var(--gold);font-size:14px;letter-spacing:.05em;margin:14px 0 6px}
+.rules h3:first-child{margin-top:0}
+.rules p,.rules li{color:var(--mute);margin-bottom:5px}
+.rules ol,.rules ul{margin-left:18px}
+.rules b{color:var(--parch)}
+footer{text-align:center;margin-top:46px;padding-top:20px;color:var(--gold-dim);font-size:12px;font-family:'Cinzel',serif;letter-spacing:.15em}
+.foot-sigil{font-size:20px;color:var(--gold);opacity:.6;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ============================================================
+     ⚡⚡  EDIT ZONE — THE ONLY PART YOU EVER TOUCH  ⚡⚡
+     ============================================================
+     Viewers of the published link never see this block — only the
+     finished tables. To update: edit the lines, save, re-push to git.
+
+     ───────────────  1. RECORD A PICK  ───────────────
+       pick("Mike Nelson", 1, "Austria");
+       = player, round, chosen realm. (One line per pick.)
+       You do NOT enter win/loss on the pick — results do that
+       automatically (see below).
+
+     ───────────────  2. RECORD A GROUP RESULT  ───────────────
+       result(1, "Mexico", "South Africa", "2-1");
+       = round (1/2/3), home, away, score.
+       The page works out who won and auto-marks any pick of those
+       teams that round as survived (win) or banished (draw/loss).
+
+     ───────────────  3. RECORD A KNOCKOUT RESULT  ───────────────
+       ko("France", "Senegal");
+       = winner advanced, loser eliminated. (Handles pens cleanly —
+       just name who went through.) Auto-marks picks + flags loser out.
+
+     ───────────────  4. FLAG A TEAM OUT OF THE COMPETITION  ───────────────
+       Knockout losers are flagged out automatically by ko().
+       For GROUP teams that are mathematically eliminated (bottom of
+       group / didn't make the 8 best 3rd places), flag manually once
+       confirmed:
+         eliminate("Haiti");
+       This greys the realm out for everyone in "Realms Remaining".
+
+     ───────────────  5. RECORD A REBUY  ───────────────
+       A wizard banished in the GROUP stage may rebuy and play on:
+         rebuy("Jonny Hine", 2);
+       = player re-enters and picks again from round 2. Pot rises £10.
+       (No rebuys once knockouts start.)
+
+     ───────────────  6. SET THE OPEN ROUND  ───────────────
+       CURRENT_ROUND = the round currently open for picks.
+       1 = MD1 · 2 = MD2 · 3 = MD3 · 4 = R32 · 5 = R16 · 6 = QF · 7 = SF · 8 = Final
+     ============================================================ -->
+<script>
+const CURRENT_ROUND = 1;
+
+const PLAYERS = [
+  "Andy Ballantyne","Calum Reid","Charlie Sheldon","Craig Johnston","Dan Holmes",
+  "James McCutcheon","Jeremy Dyson","Jonny Hine","Mike Nelson","Paddy Burge","Tom Evans"
+];
+
+// builders (do not edit)
+const _picks=[], _rebuys=[], _results=[], _kos=[], _manualOut=[];
+function pick(player,round,team){ _picks.push({player,round,team}); }
+function result(round,home,away,score){ _results.push({round,home,away,score}); }
+function ko(winner,loser){ _kos.push({winner,loser}); }
+function eliminate(team){ _manualOut.push(team); }
+function rebuy(player,round){ _rebuys.push({player,round}); }
+
+/* ===================== PICKS ===================== */
+pick("Mike Nelson",  1, "Austria");
+pick("Jeremy Dyson", 1, "Austria");
+pick("Jonny Hine",   1, "Norway");
+/* add picks as they arrive, e.g.  pick("Andy Ballantyne", 1, "Brazil");  */
+
+/* ===================== GROUP RESULTS ===================== */
+/* e.g.  result(1, "Mexico", "South Africa", "2-1");  */
+
+/* ===================== KNOCKOUT RESULTS ===================== */
+/* e.g.  ko("France", "Senegal");  */
+
+/* ===================== TEAMS ELIMINATED (group, manual) ===================== */
+/* e.g.  eliminate("Haiti");  */
+
+/* ===================== REBUYS ===================== */
+/* e.g.  rebuy("Jonny Hine", 2);  */
+
+/* ============================================================
+     END EDIT ZONE — nothing below needs changing
+   ============================================================ */
+</script>
+
+<header>
+  <div class="sigil">✦ ☾ ✦</div>
+  <div class="eyebrow">The Great Council of Wizards convenes</div>
+  <h1>Last Wizard<br>Standing</h1>
+  <div class="sub">World Cup 2026 · One realm. Eleven sorcerers. One pot.</div>
+  <div class="rule"></div>
+</header>
+
+<div class="pot" id="potBanner"></div>
+<div class="sec"><span class="star">✦</span><h2>The Current Summons</h2><span class="line"></span></div>
+<div class="now" id="nowCard"></div>
+<div class="sec"><span class="star">✦</span><h2>Council Standing</h2><span class="line"></span></div>
+<div class="players" id="playerGrid"></div>
+<div class="sec"><span class="star">✦</span><h2>The Book of Choices</h2><span class="line"></span></div>
+<div class="tablewrap"><table class="hist" id="histTable"></table></div>
+<div class="sec"><span class="star">✦</span><h2>Realms Remaining</h2><span class="line"></span></div>
+<div class="tablewrap"><table class="matrix" id="matrixTable"></table></div>
+<div class="legend">
+  <span><i class="m-avail">○</i> available</span>
+  <span><i class="m-chosen">●R</i> chosen (round)</span>
+  <span><i class="m-dead">✕</i> realm out of competition</span>
+</div>
+<div class="sec"><span class="star">✦</span><h2>Fixtures &amp; Results</h2><span class="line"></span></div>
+<div id="fixtures"></div>
+<div class="sec"><span class="star">✦</span><h2>Paths to the Throne</h2><span class="line"></span></div>
+<div class="bracket" id="bracket"></div>
+<div class="sec"><span class="star">✦</span><h2>The Sacred Laws</h2><span class="line"></span></div>
+<div class="rules" id="rules"></div>
+
+<footer><div class="foot-sigil">✧</div>MAY THE WISEST WIZARD PREVAIL</footer>
+</div>
+
+<script>
+/* ===== static reference data ===== */
+const ROUND_NAMES={1:"Group · Matchday 1",2:"Group · Matchday 2",3:"Group · Matchday 3",4:"Round of 32",5:"Round of 16",6:"Quarter-finals",7:"Semi-finals",8:"Final"};
+const ROUND_DEADLINES={1:"8:00pm, Thursday 11 June (kickoff, Mexico v South Africa)",2:"Before the first Matchday 2 fixture",3:"Before the first Matchday 3 fixture",4:"Before the first Round of 32 fixture",5:"Before the first Round of 16 fixture",6:"Before the first Quarter-final",7:"Before the first Semi-final",8:"Before the Final"};
+const TEAM_ORDER=["Spain","Argentina","France","England","Brazil","Portugal","Netherlands","Belgium","Germany","Croatia","Morocco","Colombia","Uruguay","Switzerland","Japan","USA","Mexico","Senegal","Iran","South Korea","Ecuador","Austria","Sweden","Norway","Australia","Egypt","Panama","Canada","Ivory Coast","Qatar","Saudi Arabia","Scotland","Paraguay","Tunisia","Czechia","Algeria","Iraq","Uzbekistan","Jordan","DR Congo","South Africa","Cape Verde","Curaçao","New Zealand","Haiti","Bosnia and Herzegovina","Türkiye","Ghana"];
+const GROUPS={A:["Mexico","South Africa","South Korea","Czechia"],B:["Canada","Bosnia and Herzegovina","Qatar","Switzerland"],C:["Brazil","Morocco","Haiti","Scotland"],D:["USA","Paraguay","Australia","Türkiye"],E:["Germany","Curaçao","Ivory Coast","Ecuador"],F:["Netherlands","Japan","Sweden","Tunisia"],G:["Belgium","Egypt","Iran","New Zealand"],H:["Spain","Cape Verde","Saudi Arabia","Uruguay"],I:["France","Senegal","Iraq","Norway"],J:["Argentina","Algeria","Austria","Jordan"],K:["Portugal","DR Congo","Uzbekistan","Colombia"],L:["England","Croatia","Ghana","Panama"]};
+const TEAM_GROUP={};Object.entries(GROUPS).forEach(([g,ts])=>ts.forEach(t=>TEAM_GROUP[t]=g));
+const FIXTURES={
+ 1:[["A","Mexico","South Africa"],["A","South Korea","Czechia"],["B","Canada","Bosnia and Herzegovina"],["B","Qatar","Switzerland"],["C","Brazil","Morocco"],["C","Haiti","Scotland"],["D","USA","Paraguay"],["D","Australia","Türkiye"],["E","Germany","Curaçao"],["E","Ivory Coast","Ecuador"],["F","Netherlands","Japan"],["F","Sweden","Tunisia"],["G","Belgium","Egypt"],["G","Iran","New Zealand"],["H","Spain","Cape Verde"],["H","Saudi Arabia","Uruguay"],["I","France","Senegal"],["I","Iraq","Norway"],["J","Argentina","Algeria"],["J","Austria","Jordan"],["K","Portugal","DR Congo"],["K","Uzbekistan","Colombia"],["L","England","Croatia"],["L","Ghana","Panama"]],
+ 2:[["A","Czechia","South Africa"],["A","Mexico","South Korea"],["B","Switzerland","Bosnia and Herzegovina"],["B","Canada","Qatar"],["C","Scotland","Morocco"],["C","Brazil","Haiti"],["D","USA","Australia"],["D","Türkiye","Paraguay"],["E","Germany","Ivory Coast"],["E","Ecuador","Curaçao"],["F","Netherlands","Sweden"],["F","Tunisia","Japan"],["G","Belgium","Iran"],["G","New Zealand","Egypt"],["H","Spain","Saudi Arabia"],["H","Uruguay","Cape Verde"],["I","France","Iraq"],["I","Norway","Senegal"],["J","Argentina","Austria"],["J","Jordan","Algeria"],["K","Portugal","Uzbekistan"],["K","Colombia","DR Congo"],["L","England","Ghana"],["L","Panama","Croatia"]],
+ 3:[["A","Czechia","Mexico"],["A","South Africa","South Korea"],["B","Switzerland","Canada"],["B","Bosnia and Herzegovina","Qatar"],["C","Scotland","Brazil"],["C","Morocco","Haiti"],["D","Türkiye","USA"],["D","Paraguay","Australia"],["E","Curaçao","Ivory Coast"],["E","Ecuador","Germany"],["F","Japan","Sweden"],["F","Tunisia","Netherlands"],["G","Egypt","Iran"],["G","New Zealand","Belgium"],["H","Cape Verde","Saudi Arabia"],["H","Uruguay","Spain"],["I","Norway","France"],["I","Senegal","Iraq"],["J","Jordan","Argentina"],["J","Algeria","Austria"],["K","Colombia","Portugal"],["K","DR Congo","Uzbekistan"],["L","Panama","England"],["L","Croatia","Ghana"]]
+};
+const R32=["A2 vs B2","C1 vs F2","E1 vs (3rd A/B/C/D/F)","F1 vs C2","E2 vs I2","I1 vs (3rd C/D/F/G/H)","A1 vs (3rd C/E/F/H/I)","L1 vs (3rd E/H/I/J/K)","G1 vs (3rd A/E/H/I/J)","D1 vs (3rd B/E/F/I/J)","H1 vs J2","K2 vs L2","B1 vs (3rd E/F/G/I/J)","D2 vs G2","J1 vs H2","K1 vs (3rd D/E/I/J/L)"];
+
+/* ===== derive results & state ===== */
+const $=id=>document.getElementById(id);
+const firstName=f=>f.split(" ")[0];
+
+// map a group result to a score lookup, and decide each team's outcome that round
+function groupOutcome(team,round){
+  const r=_results.find(x=>x.round===round&&(x.home===team||x.away===team));
+  if(!r) return null;
+  const [h,a]=r.score.split("-").map(s=>parseInt(s.trim(),10));
+  if(isNaN(h)||isNaN(a)) return null;
+  const isHome=r.home===team;
+  const my=isHome?h:a, opp=isHome?a:h;
+  if(my>opp) return "win";
+  if(my<opp) return "loss";
+  return "draw";
+}
+// knockout outcome for a team
+function koOutcome(team){
+  const w=_kos.find(x=>x.winner===team); if(w) return "advance";
+  const l=_kos.find(x=>x.loser===team); if(l) return "eliminated";
+  return null;
+}
+// resolve a single pick's result: win/advance = survived, draw/loss/eliminated = banished
+function pickResult(pk){
+  if(pk.round<=3){ return groupOutcome(pk.team,pk.round); }
+  return koOutcome(pk.team);
+}
+const SURVIVE=new Set(["win","advance"]);
+const BANISH=new Set(["draw","loss","eliminated"]);
+
+// team out of competition? knockout loser OR manually eliminated
+const DEAD_TEAMS=new Set([..._manualOut, ..._kos.map(k=>k.loser)]);
+
+// player status with rebuys honoured
+function playerState(){
+  const st={};
+  PLAYERS.forEach(p=>{
+    const picks=_picks.filter(x=>x.player===p).map(pk=>({...pk,result:pickResult(pk)})).sort((a,b)=>a.round-b.round);
+    const rebuys=_rebuys.filter(x=>x.player===p).sort((a,b)=>a.round-b.round);
+    // walk rounds: a banishment ends the game UNLESS a rebuy re-enters at a later round
+    let out=false,outRound=null,survivedCount=0;
+    for(const pk of picks){
+      const res=pk.result;
+      if(SURVIVE.has(res)) survivedCount++;
+      if(BANISH.has(res)){
+        const savedBy=rebuys.find(rb=>rb.round>pk.round);
+        if(savedBy){ continue; } // rebought past this banishment, plays on
+        out=true; outRound=pk.round; break;
+      }
+    }
+    st[p]={picks,rebuys,out,outRound,survivedCount};
+  });
+  return st;
+}
+const STATE=playerState();
+
+function computePot(){
+  let total=0,committed={};
+  PLAYERS.forEach(p=>{const c=10+STATE[p].rebuys.length*10;committed[p]=c;total+=c;});
+  return{total,committed};
+}
+
+function renderPot(){
+  const {total}=computePot();
+  const alive=PLAYERS.filter(p=>!STATE[p].out).length;
+  const reb=PLAYERS.reduce((s,p)=>s+STATE[p].rebuys.length,0);
+  $("potBanner").innerHTML=`<div class="label">The Pot of Gold</div><div class="amount">£${total}</div><div class="meta"><b>${alive}</b> of ${PLAYERS.length} wizards still standing &nbsp;·&nbsp; <b>${reb}</b> rebuy${reb===1?"":"s"} so far &nbsp;·&nbsp; winner takes all</div>`;
+}
+function renderNow(){
+  const r=CURRENT_ROUND,g=r<=3;
+  $("nowCard").innerHTML=`<div class="rd">Round ${r} — ${ROUND_NAMES[r]}</div><div class="dl">⏳ Deadline: <b>${ROUND_DEADLINES[r]}</b></div><div class="note">${g?"Your chosen realm must WIN. A draw or defeat banishes you — rebuy available to play on (pot rises).":"Your chosen realm must ADVANCE. Extra time &amp; penalties count. No rebuys from here."}</div>`;
+}
+function renderPlayers(){
+  const {committed}=computePot();
+  $("playerGrid").innerHTML=PLAYERS.map(p=>{
+    const s=STATE[p];
+    const cur=s.picks.find(x=>x.round===CURRENT_ROUND);
+    const reb=s.rebuys.length;
+    let line;
+    if(s.out) line=`<span class="dot r"></span>Banished — Round ${s.outRound}`;
+    else line=`<span class="dot g"></span>Standing${s.survivedCount?` · survived ${s.survivedCount}`:""}`;
+    let ph;
+    if(s.out) ph=`<span class="pending">— out of the running —</span>`;
+    else if(cur){
+      let mark="";
+      if(SURVIVE.has(cur.result))mark=' <span class="win">✓</span>';
+      else if(cur.result==="draw")mark=' <span class="draw">=</span>';
+      else if(BANISH.has(cur.result))mark=' <span class="loss">✗</span>';
+      ph=`<span class="team">${cur.team}</span>${mark}`;
+    } else ph=`<span class="pending">awaiting choice…</span>`;
+    return `<div class="pcard ${s.out?'out':'alive'}"><div class="nm">${p}</div><div class="st">${line}</div><div class="pick"><span class="lbl">Round ${CURRENT_ROUND} choice</span>${ph}</div><div class="rebuys">£${committed[p]} committed · ${reb} rebuy${reb===1?"":"s"}</div></div>`;
+  }).join("");
+}
+function shortRound(r){return r<=3?'MD'+r:({4:'R32',5:'R16',6:'QF',7:'SF',8:'🏆'})[r];}
+function renderHistory(){
+  const maxR=Math.max(CURRENT_ROUND,..._picks.map(p=>p.round));
+  const rounds=[1,2,3,4,5,6,7,8].filter(r=>r<=maxR);
+  let head=`<thead><tr><th>Wizard</th>${rounds.map(r=>`<th>${shortRound(r)}</th>`).join("")}</tr></thead>`;
+  let body="<tbody>"+PLAYERS.map(p=>{
+    const s=STATE[p];
+    const cells=rounds.map(r=>{
+      const pk=s.picks.find(x=>x.round===r);
+      if(!pk) return `<td class="cell-empty">·</td>`;
+      let cls="cell-team",suf="";
+      if(SURVIVE.has(pk.result)){cls="win";suf=" ✓";}
+      else if(pk.result==="draw"){cls="draw";suf=" =";}
+      else if(BANISH.has(pk.result)){cls="loss";suf=" ✗";}
+      return `<td class="${cls}">${pk.team}${suf}</td>`;
+    }).join("");
+    return `<tr class="${s.out?'dead':''}"><td>${p}</td>${cells}</tr>`;
+  }).join("")+"</tbody>";
+  $("histTable").innerHTML=head+body;
+}
+function renderMatrix(){
+  const teams=TEAM_ORDER.filter(t=>TEAM_GROUP[t]);
+  let head=`<thead><tr><th class="rank">#</th><th>Realm</th>${PLAYERS.map(p=>`<th class="mcell">${firstName(p)}</th>`).join("")}</tr></thead>`;
+  let body="<tbody>"+teams.map((t,i)=>{
+    const dead=DEAD_TEAMS.has(t);
+    const cells=PLAYERS.map(p=>{
+      const used=_picks.find(x=>x.player===p&&x.team===t);
+      if(used) return `<td class="mcell m-chosen">●${used.round}</td>`;
+      if(dead) return `<td class="mcell m-dead">✕</td>`;
+      return `<td class="mcell m-avail">○</td>`;
+    }).join("");
+    return `<tr class="${dead?'teamdead':''}"><td class="rank">${i+1}</td><td>${t} <span style="color:var(--gold-dim);font-size:10px">(${TEAM_GROUP[t]})</span></td>${cells}</tr>`;
+  }).join("")+"</tbody>";
+  $("matrixTable").innerHTML=head+body;
+}
+function renderFixtures(){
+  let html="";
+  [1,2,3].forEach(md=>{
+    if(md<CURRENT_ROUND && !_results.some(r=>r.round===md)) return;
+    const open=md===CURRENT_ROUND;
+    html+=`<details class="fixgroup" ${open?'open':''}><summary>Matchday ${md} <span class="tag">${FIXTURES[md].length} fixtures</span></summary><div class="fixlist">`+
+      FIXTURES[md].map(([g,h,a])=>{
+        const r=_results.find(x=>x.round===md&&((x.home===h&&x.away===a)||(x.home===a&&x.away===h)));
+        if(r){
+          const [hs,as_]=r.score.split("-").map(s=>parseInt(s.trim(),10));
+          const hCls=hs>as_?'wnr':(hs<as_?'lsr':'');
+          const aCls=as_>hs?'wnr':(as_<hs?'lsr':'');
+          return `<div class="fixrow played"><span class="grp">${g}</span><span class="${hCls}">${h}</span><span class="vs">v</span><span class="${aCls}">${a}</span><span class="score">${r.score}</span></div>`;
+        }
+        return `<div class="fixrow"><span class="grp">${g}</span><span>${h}</span><span class="vs">v</span><span>${a}</span></div>`;
+      }).join("")+`</div></details>`;
+  });
+  html+=`<details class="fixgroup"><summary>Knockouts <span class="tag">structure below</span></summary><div class="fixlist"><div class="fixrow" style="color:var(--mute);font-style:italic">Concrete knockout fixtures depend on final group standings — see “Paths to the Throne”.</div></div></details>`;
+  $("fixtures").innerHTML=html;
+}
+function renderBracket(){
+  let html=`<p style="margin-bottom:10px;color:var(--mute);font-style:italic">32 of 48 realms advance (top 2 per group + 8 best 3rd-placed). Round-of-32 slots feed as follows — plan which realms you save:</p>`;
+  html+=R32.map((m,i)=>`<div class="slot"><b>R32 · Match ${i+1}</b><br>${m}</div>`).join("");
+  html+=`<p style="margin-top:12px;color:var(--mute);font-style:italic">The top four seeds (Spain, Argentina, France, England) sit on separate paths and cannot meet before the semi-finals if they win their groups.</p>`;
+  $("bracket").innerHTML=html;
+}
+function renderRules(){
+  $("rules").innerHTML=`<h3>The Game</h3><p>Each round, every wizard names ONE realm. A realm may be chosen <b>only once</b> all tournament — hoard the mighty ones for later.</p><h3>Surviving a Round</h3><ul><li><b>Group stage (rounds 1–3):</b> your realm must WIN. Draw or defeat = banished.</li><li><b>Knockouts (rounds 4–8):</b> your realm must ADVANCE (extra time / penalties count).</li><li>Only the result of the match your realm plays that round matters. Official FIFA result is final.</li></ul><h3>Gold</h3><ul><li>£10 to enter. Banished in the group stage? Rebuy for £10 and choose again next round — the pot rises.</li><li>Max 3 rebuys (one per group round) — worst case £40, buying a Round-of-32 choice.</li><li>No rebuys once the knockouts begin.</li></ul><h3>Winning — last wizard standing takes the whole pot</h3><ol><li>Reaching a later round beats reaching an earlier one.</li><li>Naming a realm and playing the round — even in defeat — beats being unable to field a realm.</li><li>Still level → fewest rebuys wins.</li><li>Still level → latest rebuy wins.</li><li>Still dead level → those wizards split the pot.</li></ol><p>(You need 8 different realms to reach the final, and the pool halves each knockout round — so you can run out.)</p>`;
+}
+renderPot();renderNow();renderPlayers();renderHistory();renderMatrix();renderFixtures();renderBracket();renderRules();
+</script>
+</body>
+</html>
