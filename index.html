@@ -155,8 +155,8 @@ footer{text-align:center;margin-top:46px;padding-top:20px;color:var(--gold-dim);
 const CURRENT_ROUND = 1;
 
 const PLAYERS = [
-  "Andy Ballantyne","Calum Reid","Charlie Sheldon","Craig Johnston","Dan Holmes",
-  "James McCutcheon","Jeremy Dyson","Jonny Hine","Mike Nelson","Paddy Burge","Tom Evans"
+  "Bally","Calum","Charlie","Craig","Dan",
+  "Macca","Dyson","Jonny","Nelson","Paddy","Tom"
 ];
 
 // builders (do not edit)
@@ -169,9 +169,11 @@ function eliminate(team){ _manualOut.push(team); }
 function rebuy(player,round){ _rebuys.push({player,round}); }
 
 /* ===================== PICKS ===================== */
-pick("Mike Nelson",  1, "Austria");
-pick("Jeremy Dyson", 1, "Austria");
-pick("Jonny Hine",   1, "Norway");
+pick("Nelson",  1, "Austria");
+pick("Dyson", 1, "Austria");
+pick("Jonny",   1, "Norway");
+pick("Calum", 1, "Scotland");
+pick("Tom", 1, "Germany");
 /* add picks as they arrive, e.g.  pick("Andy Ballantyne", 1, "Brazil");  */
 
 /* ===================== GROUP RESULTS ===================== */
