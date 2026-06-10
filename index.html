@@ -51,6 +51,7 @@ h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(26px,7vw,52px);lin
 .pcard .pick .lbl{color:var(--gold-dim);font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;display:block;margin-bottom:2px}
 .pcard .pick .team{color:var(--parch);font-weight:500}
 .pcard .pick .pending{color:var(--mute);font-style:italic}
+.pcard .pick .opp{color:var(--arcane);font-size:11.5px;font-style:italic;margin-top:3px}
 .pcard .rebuys{font-size:11px;color:var(--gold-dim);margin-top:5px}
 .tablewrap{overflow-x:auto;border:1px solid var(--edge);border-radius:12px;background:var(--panel);-webkit-overflow-scrolling:touch}
 table{border-collapse:collapse;width:100%;font-size:13px}
@@ -170,17 +171,17 @@ function rebuy(player,round){ _rebuys.push({player,round}); }
 
 /* ===================== PICKS ===================== */
 pick("Nelson",  1, "Austria");
-pick("Dyson", 1, "Austria");
+pick("Dyson",   1, "Austria");
 pick("Jonny",   1, "Norway");
-pick("Calum", 1, "Scotland");
-pick("Tom", 1, "Germany");
-pick("Jimbo", 1, "Colombia");
-pick("Craig", 1, "Portugal");
+pick("Calum",   1, "Scotland");
+pick("Tom",     1, "Germany");
+pick("Jimbo",   1, "Colombia");
+pick("Craig",   1, "Portugal");
 pick("Charlie", 1, "Germany");
-pick("Dan", 1, "Germany");
-pick("Paddy", 1, "Germany");
-pick("Bally", 1, "Switzerland");
-/* add picks as they arrive, e.g.  pick("Andy Ballantyne", 1, "Brazil");  */
+pick("Dan",     1, "Germany");
+pick("Paddy",   1, "Germany");
+pick("Bally",   1, "Switzerland");
+/* add picks as they arrive, e.g.  pick("Bally", 2, "Brazil");  */
 
 /* ===================== GROUP RESULTS ===================== */
 /* e.g.  result(1, "Mexico", "South Africa", "2-1");  */
@@ -308,6 +309,19 @@ function playerState(){
 }
 const STATE=playerState();
 
+// find a team's opponent for a given round (groups use FIXTURES; knockouts use _koFix)
+function opponentOf(team,round){
+  if(round<=3){
+    const fx=(FIXTURES[round]||[]).find(([g,h,a])=>h===team||a===team);
+    if(!fx) return null;
+    const [g,h,a]=fx;
+    return {opp:h===team?a:h, home:h===team, group:g};
+  }
+  const f=_koFix.find(x=>x.round===round&&(x.teamA===team||x.teamB===team));
+  if(!f) return null;
+  return {opp:f.teamA===team?f.teamB:f.teamA, home:null, group:null};
+}
+
 function computePot(){
   let total=0,committed={};
   PLAYERS.forEach(p=>{const c=10+STATE[p].rebuys.length*10;committed[p]=c;total+=c;});
@@ -340,7 +354,9 @@ function renderPlayers(){
       if(SURVIVE.has(cur.result))mark=' <span class="win">✓</span>';
       else if(cur.result==="draw")mark=' <span class="draw">=</span>';
       else if(BANISH.has(cur.result))mark=' <span class="loss">✗</span>';
-      ph=`<span class="team">${cur.team}</span>${mark}`;
+      const o=opponentOf(cur.team,CURRENT_ROUND);
+      const oppLine=o?`<div class="opp">v ${o.opp}</div>`:"";
+      ph=`<span class="team">${cur.team}</span>${mark}${oppLine}`;
     } else ph=`<span class="pending">awaiting choice…</span>`;
     return `<div class="pcard ${s.out?'out':'alive'}"><div class="nm">${p}</div><div class="st">${line}</div><div class="pick"><span class="lbl">Round ${CURRENT_ROUND} choice</span>${ph}</div><div class="rebuys">£${committed[p]} committed · ${reb} rebuy${reb===1?"":"s"}</div></div>`;
   }).join("");
