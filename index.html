@@ -1,4 +1,3 @@
-<script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -203,41 +202,31 @@ pick("Paddy",   1, "Germany");
 pick("Bally",   1, "Switzerland");
 
 pick("Charlie", 2, "Ecuador");
-pick("Jonny", 2, "Uruguay");
-pick("Nelson", 2, "Ecuador");
-pick("Dyson", 2, "Ecuador");
-pick("Calum", 2, "Ecuador");
-pick("Bally", 2, "Ecuador");
-pick("Paddy", 2, "Croatia");
-pick("Craig", 2, "Brazil");
-pick("Dan", 2, "Belgium");
-pick("Jimbo", 2, "Ecuador");
-pick("Tom", 2, "Croatia");
+pick("Jonny",   2, "Uruguay");
+pick("Nelson",  2, "Ecuador");
+pick("Dyson",   2, "Ecuador");
+pick("Calum",   2, "Ecuador");
+pick("Bally",   2, "Ecuador");
+pick("Paddy",   2, "Croatia");
+pick("Craig",   2, "Brazil");
+pick("Dan",     2, "Belgium");
+pick("Jimbo",   2, "Ecuador");
+pick("Tom",     2, "Croatia");
 
-pick("Nelson", 3, "Senegal");
-pick("Dan", 3, "Morocco");
-pick("Dyson", 3, "South Korea");
-pick("Tom", 3, "Senegal");
-pick("Bally", 3, "Morocco");
-pick("Jonny", 3, "DR Congo");
-pick("Craig", 3, "Morocco");
-pick("Jimbo", 3, "Senegal");
-pick("Calum", 3, "Morocco");
-pick("Paddy", 3, "Netherlands");
+pick("Nelson",  3, "Senegal");
+pick("Dan",     3, "Morocco");
+pick("Dyson",   3, "South Korea");
+pick("Tom",     3, "Senegal");
+pick("Bally",   3, "Morocco");
+pick("Jonny",   3, "DR Congo");
+pick("Craig",   3, "Morocco");
+pick("Jimbo",   3, "Senegal");
+pick("Calum",   3, "Morocco");
+pick("Paddy",   3, "Netherlands");
 pick("Charlie", 3, "Senegal");
-
-/*
-pick("Nelson", 4, "Germany");
-pick("Craig", 4, "England");
-pick("Tom", 4, "USA");
-pick("Dyson", 4, "Mexico");
-pick("Charlie", 4, "Mexico");
-pick("Jonny", 4, "England");
-*/
-/* add picks as they arrive, e.g.  pick("Bally", 2, "Brazil");  */
+/* add R4 picks as they arrive, e.g.  pick("Tom", 4, "Brazil");  */
 
 /* ===================== GROUP RESULTS ===================== */
-/* e.g.  result(1, "Mexico", "South Africa", "2-1");  */
 result(1, "Mexico", "South Africa", "2-0");
 result(1, "South Korea", "Czechia", "2-1");
 result(1, "Canada", "Bosnia and Herzegovina", "1-1");
@@ -313,13 +302,7 @@ result(3, "Colombia", "Portugal", "0-0");
 result(3, "Algeria", "Austria", "3-3");
 result(3, "Jordan", "Argentina", "1-3");
 
-
 /* ===================== KNOCKOUT FIXTURES ===================== */
-/* Once each knockout draw is confirmed, list the matchups here so
-   everyone can see who plays whom. Round numbers: 4=R32, 5=R16,
-   6=QF, 7=SF, 8=Final. As you log the ko() result below, the score/
-   winner is shown automatically against the matching fixture.
-   e.g.  koFixture(4, "Spain", "Morocco");  */
 koFixture(4, "South Africa", "Canada");
 koFixture(4, "Brazil", "Japan");
 koFixture(4, "Germany", "Paraguay");
@@ -341,7 +324,6 @@ koFixture(4, "Colombia", "Ghana");
 /* e.g.  ko("France", "Senegal");  */
 
 /* ===================== TEAMS ELIMINATED (group, manual) ===================== */
-/* e.g.  eliminate("Haiti");  */
 eliminate("Czechia");
 eliminate("Qatar");
 eliminate("Haiti");
@@ -360,7 +342,6 @@ eliminate("Iran");
 eliminate("South Korea");
 
 /* ===================== REBUYS ===================== */
-/* e.g.  rebuy("Jonny Hine", 2);  */
 rebuy("Bally", 2);
 rebuy("Craig", 2);
 rebuy("Nelson", 3);
@@ -371,7 +352,6 @@ rebuy("Dan", 3);
 rebuy("Jimbo", 3);
 rebuy("Calum", 3);
 rebuy("Charlie", 3);
-rebuy("Dyson", 4);
 
 /* ============================================================
      END EDIT ZONE — nothing below needs changing
