@@ -1,3 +1,4 @@
+<script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -90,6 +91,25 @@ tbody tr:hover{background:rgba(123,108,217,.06)}
 .bracket{font-size:13px;color:var(--mute);line-height:1.7;padding:4px 2px}
 .bracket b{color:var(--parch);font-family:'Cinzel',serif;font-weight:600;font-size:12px}
 .bracket .slot{padding:7px 12px;border-left:2px solid var(--edge);margin:5px 0;background:var(--panel)}
+.routebar{margin-bottom:8px;font-size:13.5px;color:var(--mute)}
+.routebar select{background:var(--panel-2);color:var(--gold);border:1px solid var(--edge);border-radius:8px;padding:6px 10px;font-family:'Cinzel',serif;font-size:13px}
+.routekey{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;font-size:12px;color:var(--mute)}
+.routekey i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle;margin-right:5px}
+.rk-avail{background:rgba(95,179,122,.4);border:1px solid var(--green)}
+.rk-used{background:rgba(212,175,55,.25);border:1px solid var(--gold-dim)}
+.rk-dead{background:rgba(198,90,90,.18);border:1px solid rgba(198,90,90,.4)}
+.routegrid{display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px}
+.routecol{min-width:140px;flex:0 0 auto}
+.rhead{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.08em;color:var(--gold-dim);text-transform:uppercase;text-align:center;padding:6px 0;border-bottom:1px solid var(--edge);margin-bottom:8px}
+.rtie,.rslot{background:var(--panel);border:1px solid var(--edge);border-radius:9px;padding:6px;margin-bottom:7px;position:relative}
+.rnum{position:absolute;top:-7px;left:8px;background:var(--void-2);font-family:'Cinzel',serif;font-size:9px;color:var(--gold-dim);padding:0 5px;border-radius:4px}
+.rchip{font-size:12px;padding:5px 8px;border-radius:6px;margin-top:4px;border:1px solid transparent}
+.rchip:first-of-type{margin-top:3px}
+.ravail{background:rgba(95,179,122,.18);border-color:rgba(95,179,122,.5);color:#bfe6cc}
+.rused{background:rgba(212,175,55,.12);border-color:var(--gold-dim);color:var(--gold);opacity:.75}
+.rdead{background:rgba(198,90,90,.1);border-color:rgba(198,90,90,.3);color:var(--mute);text-decoration:line-through;opacity:.55}
+.rempty{color:var(--edge);font-style:italic}
+.radv{color:var(--green)}
 .rules{background:var(--panel);border:1px solid var(--edge);border-radius:12px;padding:18px 20px;font-size:14px;color:var(--parch)}
 .rules h3{font-family:'Cinzel',serif;color:var(--gold);font-size:14px;letter-spacing:.05em;margin:14px 0 6px}
 .rules h3:first-child{margin-top:0}
@@ -206,6 +226,14 @@ pick("Calum", 3, "Morocco");
 pick("Paddy", 3, "Netherlands");
 pick("Charlie", 3, "Senegal");
 
+/*
+pick("Nelson", 4, "Germany");
+pick("Craig", 4, "England");
+pick("Tom", 4, "USA");
+pick("Dyson", 4, "Mexico");
+pick("Charlie", 4, "Mexico");
+pick("Jonny", 4, "England");
+*/
 /* add picks as they arrive, e.g.  pick("Bally", 2, "Brazil");  */
 
 /* ===================== GROUP RESULTS ===================== */
@@ -375,6 +403,7 @@ rebuy("Dyson", 4);
 <div class="sec"><span class="star">✦</span><h2>Fixtures &amp; Results</h2><span class="line"></span></div>
 <div id="fixtures"></div>
 <div class="sec"><span class="star">✦</span><h2>Paths to the Throne</h2><span class="line"></span></div>
+<div id="routeControls"></div>
 <div class="bracket" id="bracket"></div>
 <div class="sec"><span class="star">✦</span><h2>The Sacred Laws</h2><span class="line"></span></div>
 <div class="rules" id="rules"></div>
@@ -446,7 +475,7 @@ function playerState(){
         out=true; outRound=pk.round; break;
       }
     }
-    st[p]={picks,rebuys,out,outRound,survivedCount};
+    st[p]={picks,rebuys,out,outRound,survivedCount,usedTeams:picks.map(x=>x.team)};
   });
   return st;
 }
@@ -580,10 +609,82 @@ function renderFixtures(){
   $("fixtures").innerHTML=html;
 }
 function renderBracket(){
-  let html=`<p style="margin-bottom:10px;color:var(--mute);font-style:italic">32 of 48 realms advance (top 2 per group + 8 best 3rd-placed). Round-of-32 slots feed as follows — plan which realms you save:</p>`;
-  html+=R32.map((m,i)=>`<div class="slot"><b>R32 · Match ${i+1}</b><br>${m}</div>`).join("");
-  html+=`<p style="margin-top:12px;color:var(--mute);font-style:italic">The top four seeds (Spain, Argentina, France, England) sit on separate paths and cannot meet before the semi-finals if they win their groups.</p>`;
+  // ---- TRUE bracket adjacency, taken from the official wallchart (match numbers) ----
+  // Each R32 tie identified by its team pair; R16/QF/SF groupings are the real ones,
+  // so this is correct regardless of the order koFixture lines were entered.
+  const BRACKET_R32 = [
+    // [teamA, teamB]  in official bracket order (M74,M77,M73,M75, M76,M78,M79,M80, M83,M84,M81,M82, M86,M88,M85,M87)
+    ["Germany","Paraguay"],["France","Sweden"],["South Africa","Canada"],["Netherlands","Morocco"],
+    ["Brazil","Japan"],["Ivory Coast","Norway"],["Mexico","Ecuador"],["England","DR Congo"],
+    ["Portugal","Croatia"],["Spain","Austria"],["USA","Bosnia and Herzegovina"],["Belgium","Senegal"],
+    ["Argentina","Cape Verde"],["Australia","Egypt"],["Switzerland","Algeria"],["Colombia","Ghana"]
+  ];
+  const r32entered=_koFix.filter(f=>f.round===4);
+  if(r32entered.length<16){
+    $("routeControls").innerHTML="";
+    $("bracket").innerHTML=`<p style="color:var(--mute);font-style:italic">Round-of-32 fixtures not all entered yet — the route view appears once the 16 ties are listed.</p>`;
+    return;
+  }
+  const dead=new Set([..._manualOut,..._kos.map(k=>k.loser)]);
+  function won(team){ return _kos.find(k=>k.winner===team); }
+  function lost(team){ return _kos.find(k=>k.loser===team) || dead.has(team); }
+
+  const alivePlayers=PLAYERS.filter(p=>!STATE[p].out);
+  const sel = window.__routePlayer || (alivePlayers[0]||PLAYERS[0]);
+  const used = new Set(STATE[sel] ? STATE[sel].usedTeams : []);
+
+  $("routeControls").innerHTML=
+    `<div class="routebar">
+       <label>Show route availability for: </label>
+       <select id="routeSel">${PLAYERS.map(p=>`<option value="${p}" ${p===sel?"selected":""}>${p}${STATE[p].out?" (out)":""}</option>`).join("")}</select>
+     </div>
+     <div class="routekey">
+       <span><i class="rk-avail"></i> still available to ${sel}</span>
+       <span><i class="rk-used"></i> already used by ${sel}</span>
+       <span><i class="rk-dead"></i> out of competition</span>
+     </div>`;
+
+  function chip(team){
+    if(!team) return `<div class="rchip rempty">—</div>`;
+    let cls="rchip";
+    if(lost(team)) cls+=" rdead";
+    else if(used.has(team)) cls+=" rused";
+    else cls+=" ravail";
+    const through = won(team)?' <span class="radv">▸</span>':'';
+    return `<div class="${cls}">${team}${through}</div>`;
+  }
+  // teams still alive among a set of R32 tie indices
+  function aliveIn(idxs){
+    const ts=[];
+    idxs.forEach(i=>BRACKET_R32[i].forEach(t=>{ if(!lost(t)) ts.push(t); }));
+    return ts;
+  }
+  const ROUND_LABELS=["Round of 32","Round of 16","Quarter-finals","Semi-finals","Final"];
+  let cols=[];
+  // R32: actual ties, in true bracket order
+  cols.push(BRACKET_R32.map((t,i)=>`<div class="rtie">${chip(t[0])}${chip(t[1])}</div>`));
+  // R16: 8 slots, consecutive pairs of ties
+  let r16=[]; for(let s=0;s<8;s++) r16.push([2*s,2*s+1]);
+  cols.push(r16.map(idxs=>{const ts=aliveIn(idxs);return `<div class="rslot">${ts.length?ts.map(chip).join(""):'<div class="rchip rempty">tbd</div>'}</div>`;}));
+  // QF: 4 slots. Order them to match the SF halves: top half QFs first (ties0-3, ties8-11),
+  // then bottom half QFs (ties4-7, ties12-15).
+  let qf=[[0,1,2,3],[8,9,10,11],[4,5,6,7],[12,13,14,15]];
+  cols.push(qf.map(idxs=>{const ts=aliveIn(idxs);return `<div class="rslot">${ts.length?ts.map(chip).join(""):'<div class="rchip rempty">tbd</div>'}</div>`;}));
+  // SF: 2 halves. The bracket INTERLEAVES — top half = QF1(ties0-3) + QF3(ties8-11);
+  // bottom half = QF2(ties4-7) + QF4(ties12-15). (Confirmed from the official wallchart.)
+  let sf=[[0,1,2,3,8,9,10,11],[4,5,6,7,12,13,14,15]];
+  cols.push(sf.map((idxs,s)=>{const ts=aliveIn(idxs);return `<div class="rslot"><span class="rnum">${s===0?'TOP':'BOT'}</span>${ts.length?ts.map(chip).join(""):'<div class="rchip rempty">tbd</div>'}</div>`;}));
+  // Final
+  let fin=aliveIn([...Array(16).keys()]);
+  cols.push([`<div class="rslot"><span class="rnum">🏆</span>${fin.map(chip).join("")}</div>`]);
+
+  let html=`<p style="margin-bottom:12px;color:var(--mute);font-style:italic">The real bracket. Each column is a knockout round; later columns list every realm still alive that could reach that round down its actual path. Highlighting is for the selected wizard — <b>green</b> = still theirs to pick, <b>gold</b> = already used, <b>struck-through</b> = out.</p>`;
+  html+=`<div class="routegrid">`;
+  cols.forEach((col,ci)=>{ html+=`<div class="routecol"><div class="rhead">${ROUND_LABELS[ci]}</div>${col.join("")}</div>`; });
+  html+=`</div>`;
   $("bracket").innerHTML=html;
+  const selEl=document.getElementById("routeSel");
+  if(selEl) selEl.onchange=e=>{ window.__routePlayer=e.target.value; renderBracket(); };
 }
 function renderRules(){
   $("rules").innerHTML=`<h3>The Game</h3><p>Each round, every wizard names ONE realm. A realm may be chosen <b>only once</b> all tournament — hoard the mighty ones for later.</p><h3>Surviving a Round</h3><ul><li><b>Group stage (rounds 1–3):</b> your realm must WIN. Draw or defeat = banished.</li><li><b>Knockouts (rounds 4–8):</b> your realm must ADVANCE (extra time / penalties count).</li><li>Only the result of the match your realm plays that round matters. Official FIFA result is final.</li></ul><h3>Gold</h3><ul><li>£10 to enter. Banished in the group stage? Rebuy for £10 and choose again next round — the pot rises.</li><li>Max 3 rebuys (one per group round) — worst case £40, buying a Round-of-32 choice.</li><li>No rebuys once the knockouts begin.</li></ul><h3>Winning — last wizard standing takes the whole pot</h3><ol><li>Reaching a later round beats reaching an earlier one.</li><li>Naming a realm and playing the round — even in defeat — beats being unable to field a realm.</li><li>Still level → fewest rebuys wins.</li><li>Still level → latest rebuy wins.</li><li>Still dead level → those wizards split the pot.</li></ol><p>(You need 8 different realms to reach the final, and the pool halves each knockout round — so you can run out.)</p>`;
