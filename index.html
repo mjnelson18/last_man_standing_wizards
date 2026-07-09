@@ -71,6 +71,13 @@ tbody tr:hover{background:rgba(123,108,217,.06)}
 .matrix tr.teamdead td:nth-child(2){text-decoration:line-through;color:var(--mute)}
 .mcell{text-align:center;font-size:11px;font-family:'Cinzel',serif}
 .m-avail{color:var(--green)}.m-chosen{color:var(--gold);font-weight:700}.m-dead{color:var(--red);opacity:.6}
+.ledger td,.ledger th{text-align:center;white-space:nowrap}
+.ledger thead th{line-height:1.15}
+.ledger td:nth-child(2),.ledger th:nth-child(2){text-align:left;font-family:'Cinzel',serif;font-weight:600}
+.ledger .rank{color:var(--gold-dim);font-size:11px;width:24px}
+.ledger tr.dead td{opacity:.55}
+.ledger tr.leader td{background:rgba(212,175,55,.15)}
+.ledger tr.leader td:nth-child(2){color:var(--gold)}
 .legend{display:flex;flex-wrap:wrap;gap:14px;margin:10px 2px 0;font-size:12px;color:var(--mute)}
 .legend span{display:flex;align-items:center;gap:5px}
 .legend i{font-family:'Cinzel',serif;font-style:normal;font-weight:700}
@@ -141,16 +148,19 @@ footer{text-align:center;margin-top:46px;padding-top:20px;color:var(--gold-dim);
        teams that round as survived (win) or banished (draw/loss).
 
      ───────────────  3. RECORD A KNOCKOUT RESULT  ───────────────
-       ko(4, "France", "Senegal", "FT");
-       = match_round, winner advanced, loser eliminated, method.
+       ko(4, "France", "Senegal", "FT", "3-1");
+       = match_round, winner advanced, loser eliminated, method, score.
          · match_round = the 1–8 matchday round the tie belongs to
            (4=R32, 5=R16, 6=QF, 7=SF, 8=Final). This MUST be set so a
            realm that advanced in an EARLIER round is not wrongly shown
            as already through in the NEXT round.
          · method = how it was decided: "FT" (full time / 90 mins),
            "AET" (after extra time) or "Pens" (penalties).
-       Auto-marks picks for THAT round + flags loser out. Method is
-       captured for the split-pot tiebreak (wins in FT, then AET).
+         · score = goals in play "winner-loser" (do NOT include the
+           shootout — a pens tie is level, e.g. "1-1"). Feeds the
+           goal-difference / goals / clean-sheet tiebreaks.
+       Auto-marks picks for THAT round + flags loser out. Method & score
+       feed "The Reckoning" tiebreak ledger at the foot of the page.
 
      ───────────────  3b. LIST A KNOCKOUT FIXTURE  ───────────────
        Once a knockout draw is confirmed, list the matchups so people
@@ -190,7 +200,7 @@ const PLAYERS = [
 const _picks=[], _rebuys=[], _results=[], _kos=[], _manualOut=[], _koFix=[];
 function pick(player,round,team){ _picks.push({player,round,team}); }
 function result(round,home,away,score){ _results.push({round,home,away,score}); }
-function ko(round,winner,loser,method){ _kos.push({round,winner,loser,method:method||"FT"}); }
+function ko(round,winner,loser,method,score){ _kos.push({round,winner,loser,method:method||"FT",score:score||null}); }
 function koFixture(round,teamA,teamB){ _koFix.push({round,teamA,teamB}); }
 function eliminate(team){ _manualOut.push(team); }
 function rebuy(player,round){ _rebuys.push({player,round}); }
@@ -254,11 +264,14 @@ pick("Calum", 5, "Brazil");
 pick("Dan", 5, "Brazil");
 pick("Bally", 5, "Brazil");
 
-/* 
-pick("Tom", 6, "Spain");
-*/
+pick("Paddy",   6, "Argentina");
+pick("Craig",   6, "Spain");
+pick("Charlie", 6, "Spain");
+pick("Dyson",   6, "Spain");
+pick("Tom",     6, "Spain");
+/* Jimbo (a.k.a. James) — round 6 (QF) pick still TBC */
 
-/* add R4 picks as they arrive, e.g.  pick("Tom", 4, "Brazil");  */
+/* add picks as they arrive, e.g.  pick("Tom", 6, "France");  */
 
 /* ===================== GROUP RESULTS ===================== */
 result(1, "Mexico", "South Africa", "2-0");
@@ -370,34 +383,35 @@ koFixture(6, "Argentina", "Switzerland");
 
 
 /* ===================== KNOCKOUT RESULTS ===================== */
-/* ko(match_round, winner, loser, method)  ·  method = FT | AET | Pens */
+/* ko(match_round, winner, loser, method, score)  ·  method = FT|AET|Pens
+   score = "winner-loser" goals in play (shootout NOT counted).          */
 /* Round of 32 */
-ko(4, "Canada", "South Africa", "FT");
-ko(4, "Brazil", "Japan", "FT");
-ko(4, "Paraguay", "Germany", "Pens");   /* 1-1, Paraguay 4-3 on pens */
-ko(4, "Morocco", "Netherlands", "Pens"); /* 1-1, Morocco 3-2 on pens */
-ko(4, "Norway", "Ivory Coast", "FT");
-ko(4, "France", "Sweden", "FT");
-ko(4, "Mexico", "Ecuador", "FT");
-ko(4, "England", "DR Congo", "FT");
-ko(4, "Belgium", "Senegal", "AET");      /* 3-2 after extra time */
-ko(4, "USA", "Bosnia and Herzegovina", "FT");
-ko(4, "Spain", "Austria", "FT");
-ko(4, "Portugal", "Croatia", "FT");
-ko(4, "Switzerland", "Algeria", "FT");
-ko(4, "Egypt", "Australia", "Pens");     /* 1-1, Egypt 4-2 on pens */
-ko(4, "Argentina", "Cape Verde", "AET"); /* 3-2 after extra time */
-ko(4, "Colombia", "Ghana", "FT");
+ko(4, "Canada", "South Africa", "FT", "1-0");
+ko(4, "Brazil", "Japan", "FT", "2-1");
+ko(4, "Paraguay", "Germany", "Pens", "1-1");   /* Paraguay 4-3 on pens */
+ko(4, "Morocco", "Netherlands", "Pens", "1-1"); /* Morocco 3-2 on pens */
+ko(4, "Norway", "Ivory Coast", "FT", "2-1");
+ko(4, "France", "Sweden", "FT", "3-0");
+ko(4, "Mexico", "Ecuador", "FT", "2-0");
+ko(4, "England", "DR Congo", "FT", "2-1");
+ko(4, "Belgium", "Senegal", "AET", "3-2");      /* after extra time */
+ko(4, "USA", "Bosnia and Herzegovina", "FT", "2-0");
+ko(4, "Spain", "Austria", "FT", "3-0");
+ko(4, "Portugal", "Croatia", "FT", "2-1");
+ko(4, "Switzerland", "Algeria", "FT", "2-0");
+ko(4, "Egypt", "Australia", "Pens", "1-1");     /* Egypt 4-2 on pens */
+ko(4, "Argentina", "Cape Verde", "AET", "3-2"); /* after extra time */
+ko(4, "Colombia", "Ghana", "FT", "1-0");
 
 /* Round of 16 */
-ko(5, "Morocco", "Canada", "FT");
-ko(5, "France", "Paraguay", "FT");
-ko(5, "Norway", "Brazil", "FT");
-ko(5, "England", "Mexico", "FT");
-ko(5, "Spain", "Portugal", "FT");
-ko(5, "Belgium", "USA", "FT");
-ko(5, "Argentina", "Egypt", "FT");
-ko(5, "Switzerland", "Colombia", "Pens");
+ko(5, "Morocco", "Canada", "FT", "3-0");
+ko(5, "France", "Paraguay", "FT", "1-0");
+ko(5, "Norway", "Brazil", "FT", "2-1");
+ko(5, "England", "Mexico", "FT", "3-2");
+ko(5, "Spain", "Portugal", "FT", "1-0");
+ko(5, "Belgium", "USA", "FT", "4-1");
+ko(5, "Argentina", "Egypt", "FT", "3-2");
+ko(5, "Switzerland", "Colombia", "Pens", "0-0"); /* Switzerland 4-3 on pens */
   
 /* ===================== TEAMS ELIMINATED (group, manual) ===================== */
 eliminate("Czechia");
@@ -462,6 +476,9 @@ rebuy("Dyson", 4);
 <div class="sec"><span class="star">✦</span><h2>Paths to the Throne</h2><span class="line"></span></div>
 <div id="routeControls"></div>
 <div class="bracket" id="bracket"></div>
+<div class="sec"><span class="star">✦</span><h2>The Reckoning</h2><span class="line"></span></div>
+<p style="color:var(--mute);font-style:italic;font-size:13.5px;margin:0 2px 10px">Every wizard ranked by the tiebreak laws in order — round reached, then a realm still to field, rebuys, first rebuy, wins in full time, wins after extra time, net goal difference, goals scored, clean sheets. The <b style="color:var(--gold)">highlighted</b> wizard leads on every count that has separated the field so far.</p>
+<div class="tablewrap"><table class="ledger" id="ledgerTable"></table></div>
 <div class="sec"><span class="star">✦</span><h2>The Sacred Laws</h2><span class="line"></span></div>
 <div class="rules" id="rules"></div>
 
@@ -551,6 +568,66 @@ function opponentOf(team,round){
   const f=_koFix.find(x=>x.round===round&&(x.teamA===team||x.teamB===team));
   if(!f) return null;
   return {opp:f.teamA===team?f.teamB:f.teamA, home:null, group:null};
+}
+
+/* ---- tiebreak ledger ("The Reckoning") ---- */
+// goals + outcome for a chosen realm in a given round (groups AND knockouts)
+function matchStats(team,round){
+  if(round<=3){
+    const r=_results.find(x=>x.round===round&&(x.home===team||x.away===team));
+    if(!r) return null;
+    const [h,a]=r.score.split("-").map(s=>parseInt(s.trim(),10));
+    if(isNaN(h)||isNaN(a)) return null;
+    const isHome=r.home===team, gf=isHome?h:a, ga=isHome?a:h;
+    return {gf,ga,method:"FT",survived:gf>ga};
+  }
+  const k=_kos.find(x=>x.round===round&&(x.winner===team||x.loser===team));
+  if(!k) return null;
+  let gf=null,ga=null;
+  if(k.score){
+    const p=k.score.split("-").map(s=>parseInt(s.trim(),10));
+    if(!isNaN(p[0])&&!isNaN(p[1])){ if(k.winner===team){gf=p[0];ga=p[1];}else{gf=p[1];ga=p[0];} }
+  }
+  return {gf,ga,method:k.method,survived:k.winner===team};
+}
+// aggregate tiebreak record for one wizard, over every realm they fielded
+function tieStats(p){
+  const s=STATE[p];
+  let winsFT=0,winsAET=0,gf=0,ga=0,cs=0;
+  s.picks.forEach(pk=>{
+    const m=matchStats(pk.team,pk.round);
+    if(!m) return;
+    if(m.survived&&m.method==="FT") winsFT++;
+    else if(m.survived&&m.method==="AET") winsAET++;
+    if(m.gf!=null){ gf+=m.gf; ga+=m.ga; if(m.ga===0) cs++; }
+  });
+  const stillIn=TEAM_ORDER.filter(t=>TEAM_GROUP[t]&&!DEAD_TEAMS.has(t));
+  const firstRebuy=s.rebuys.length?Math.min(...s.rebuys.map(r=>r.round)):null;
+  return {
+    p, out:s.out,
+    roundReached: s.out?s.outRound:CURRENT_ROUND,
+    hasRemaining: !s.out&&stillIn.some(t=>!s.usedTeams.includes(t)),
+    rebuys:s.rebuys.length, firstRebuy,
+    winsFT, winsAET, gd:gf-ga, gf, cs
+  };
+}
+// tiebreak order: [key, direction]  (dir 1 = smaller is better, -1 = bigger is better)
+const LEDGER_KEYS=[['roundReached',-1],['hasRemaining',-1],['rebuys',1],['firstRebuy',-1],['winsFT',-1],['winsAET',-1],['gd',-1],['gf',-1],['cs',-1]];
+function ledgerVal(row,k){
+  if(k==='hasRemaining') return row.hasRemaining?1:0;
+  if(k==='firstRebuy') return row.firstRebuy==null?0:row.firstRebuy;
+  return row[k];
+}
+function sortWizards(){
+  const rows=PLAYERS.map(tieStats);
+  rows.sort((a,b)=>{
+    for(const [k,dir] of LEDGER_KEYS){
+      const av=ledgerVal(a,k),bv=ledgerVal(b,k);
+      if(av!==bv) return dir===1?(av-bv):(bv-av);
+    }
+    return a.p.localeCompare(b.p);
+  });
+  return rows;
 }
 
 function computePot(){
@@ -657,7 +734,12 @@ function renderFixtures(){
           const aCls=winner.winner===f.teamA?'wnr':'lsr';
           const bCls=winner.winner===f.teamB?'wnr':'lsr';
           const via=winner.method&&winner.method!=="FT"?` <span style="color:var(--mute)">(${winner.method})</span>`:"";
-          return `<div class="fixrow played"><span class="${aCls}">${f.teamA}</span><span class="vs">v</span><span class="${bCls}">${f.teamB}</span><span class="score">${winner.winner} ▸${via}</span></div>`;
+          let disp="";
+          if(winner.score){
+            const [w,l]=winner.score.split("-").map(s=>s.trim());
+            disp=(winner.winner===f.teamA?`${w}-${l}`:`${l}-${w}`)+" · ";
+          }
+          return `<div class="fixrow played"><span class="${aCls}">${f.teamA}</span><span class="vs">v</span><span class="${bCls}">${f.teamB}</span><span class="score">${disp}${winner.winner} ▸${via}</span></div>`;
         }
         return `<div class="fixrow"><span>${f.teamA}</span><span class="vs">v</span><span>${f.teamB}</span></div>`;
       }).join("")+`</div></details>`;
@@ -747,9 +829,21 @@ function renderBracket(){
   if(selEl) selEl.onchange=e=>{ window.__routePlayer=e.target.value; renderBracket(); };
 }
 function renderRules(){
-  $("rules").innerHTML=`<h3>The Game</h3><p>Each round, every wizard names ONE realm. A realm may be chosen <b>only once</b> all tournament — hoard the mighty ones for later.</p><h3>Surviving a Round</h3><ul><li><b>Group stage (rounds 1–3):</b> your realm must WIN. Draw or defeat = banished.</li><li><b>Knockouts (rounds 4–8):</b> your realm must ADVANCE (extra time / penalties count).</li><li>Only the result of the match your realm plays that round matters. Official FIFA result is final.</li></ul><h3>Gold</h3><ul><li>£10 to enter. Banished in the group stage? Rebuy for £10 and choose again next round — the pot rises.</li><li>Max 3 rebuys (one per group round) — worst case £40, buying a Round-of-32 choice.</li><li>No rebuys once the knockouts begin.</li></ul><h3>Winning — last wizard standing takes the whole pot</h3><ol><li>Reaching a later round beats reaching an earlier one.</li><li>Naming a realm and playing the round — even in defeat — beats being unable to field a realm.</li><li>Still level → fewest rebuys wins.</li><li>Still level → latest rebuy wins.</li><li>Still level → most wins in 90 mins (full time).</li><li>Still level → most wins after extra time (a realm that advanced in AET beats one that needed penalties).</li><li>Still dead level → those wizards split the pot.</li></ol><p>(You need 8 different realms to reach the final, and the pool halves each knockout round — so you can run out.)</p>`;
+  $("rules").innerHTML=`<h3>The Game</h3><p>Each round, every wizard names ONE realm. A realm may be chosen <b>only once</b> all tournament — hoard the mighty ones for later.</p><h3>Surviving a Round</h3><ul><li><b>Group stage (rounds 1–3):</b> your realm must WIN. Draw or defeat = banished.</li><li><b>Knockouts (rounds 4–8):</b> your realm must ADVANCE (extra time / penalties count).</li><li>Only the result of the match your realm plays that round matters. Official FIFA result is final.</li></ul><h3>Gold</h3><ul><li>£10 to enter. Banished in the group stage? Rebuy for £10 and choose again next round — the pot rises.</li><li>Max 3 rebuys (one per group round) — worst case £40, buying a Round-of-32 choice.</li><li>No rebuys once the knockouts begin.</li></ul><h3>Winning — last wizard standing takes the whole pot</h3><ol><li>Reaching a later round beats reaching an earlier one.</li><li>Naming a realm and playing the round — even in defeat — beats being unable to field a realm.</li><li>Still level → fewest rebuys wins.</li><li>Still level → latest <b>first</b> rebuy wins — whoever lasted the longest before rebuying. (Only separates wizards on the same number of rebuys, and really only bites when someone rebought more than once.)</li><li>Still level → most wins in 90 mins (full time).</li><li>Still level → most wins after extra time (a realm that advanced in AET beats one that needed penalties).</li><li>Still level → best net goal difference (all goals your realms scored minus all they conceded).</li><li>Still level → most goals scored by your realms.</li><li>Still level → most clean sheets (matches where your realm conceded none).</li><li>Still dead level → those wizards split the pot.</li></ol><p style="margin-top:6px">See <b>The Reckoning</b> above for where every wizard currently stands on these counts.</p><p>(You need 8 different realms to reach the final, and the pool halves each knockout round — so you can run out.)</p>`;
 }
-renderPot();renderNow();renderPlayers();renderHistory();renderMatrix();renderFixtures();renderBracket();renderRules();
+function renderLedger(){
+  const rows=sortWizards();
+  const top=rows[0];
+  const isLeader=r=>top&&LEDGER_KEYS.every(([k])=>ledgerVal(r,k)===ledgerVal(top,k));
+  const fmtGD=v=>v>0?'+'+v:''+v;
+  const head=`<thead><tr><th class="rank">#</th><th>Wizard</th><th>Round<br>reached</th><th>Realm<br>left?</th><th>Rebuys</th><th>1st<br>rebuy</th><th>Wins<br>FT</th><th>Wins<br>AET</th><th>Net<br>GD</th><th>Goals<br>for</th><th>Clean<br>sheets</th></tr></thead>`;
+  const body="<tbody>"+rows.map((r,i)=>{
+    const cls=[r.out?'dead':'',isLeader(r)?'leader':''].filter(Boolean).join(' ');
+    return `<tr class="${cls}"><td class="rank">${i+1}</td><td>${r.p}</td><td>${shortRound(r.roundReached)}</td><td>${r.out?'—':(r.hasRemaining?'Y':'N')}</td><td>${r.rebuys}</td><td>${r.firstRebuy?shortRound(r.firstRebuy):'—'}</td><td>${r.winsFT}</td><td>${r.winsAET}</td><td>${fmtGD(r.gd)}</td><td>${r.gf}</td><td>${r.cs}</td></tr>`;
+  }).join("")+"</tbody>";
+  $("ledgerTable").innerHTML=head+body;
+}
+renderPot();renderNow();renderPlayers();renderHistory();renderMatrix();renderFixtures();renderBracket();renderRules();renderLedger();
 </script>
 </body>
 </html>
